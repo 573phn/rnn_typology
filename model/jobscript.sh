@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=rnn_typology
-#SBATCH --output=slurm-%j.log
+#SBATCH --output=slurm/slurm-%j.log
 #SBATCH --time=10:00
 #SBATCH --mem=8GB
 #SBATCH --partition=regular
