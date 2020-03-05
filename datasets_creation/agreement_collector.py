@@ -9,6 +9,7 @@ import time
 import agreement_markers
 import csv
 import suffixes
+import re
 
 random.seed(5)
 
@@ -608,6 +609,7 @@ class AgreementCollector(object):
 		
 	def collect_agreement(self):
 	
+		opennmt_file = open("src_"+self.order+".txt", "w")
 		sents = []
 		t = time.time()
 		
@@ -624,16 +626,16 @@ class AgreementCollector(object):
 			if has_iobj: count_iobj += 1
 			if sent == []: continue
 
-			if i % self.skip != 0: 
-				continue
-			
+			#if i % self.skip != 0:
+			#	continue
+
 			sent_info, deps = self._get_deps(sent)
 			words, tree_structure, lemmas, pos_tags, depths, labels = sent_info
 
-			if not deps: continue
+			#if not deps: continue
 
-			verb_index = random.choice(deps.keys())
-			verb_dep = deps[verb_index]
+			#verb_index = random.choice(deps.keys())
+			#verb_dep = deps[verb_index]
 		
 			
 			sent_dict = {}
@@ -643,7 +645,8 @@ class AgreementCollector(object):
 			sent_dict["sent_lemmas"] = " ".join(lemmas)
 			sent_dict["sent_labels"] = " ".join(labels)
 			sent_dict["sent_depths"] = " ".join(depths)
-			sent_dict["verb_index"] = str(verb_index)
+			#sent_dict["verb_index"] = str(verb_index)
+			sent_dict["verb_index"] = "-"
 			sent_dict["original_sent"] = " ".join([tok[WORD] for tok in sent])
 			sent_dict["verbs_count"] = len([p for p in pos_tags if p.startswith("v") or p.startswith("V")]) 
 			
@@ -653,7 +656,8 @@ class AgreementCollector(object):
 				
 				for prop in props:
 				
-					val = verb_dep[l][prop] if l in verb_dep else "-"
+					#val = verb_dep[l][prop] if l in verb_dep else "-"
+					val = "-"
 					sent_dict[l + "_" + prop] = val		
 			
 			if self.filter_no_att and sent_dict["nsubj_number_attractors"]=="0": 
@@ -671,13 +675,15 @@ class AgreementCollector(object):
 			
 			if PRINT:	
 				print "-----------------------------"
-				print sent_dict["dobj_number"], sent_dict["nsubj_number"]
-				print sent_dict["original_sent"]
-				print sent_dict["sent_words"]
+				#print sent_dict["dobj_number"], sent_dict["nsubj_number"]
+				print 'Original:', sent_dict["original_sent"]
+				print 'Modified:', sent_dict["sent_words"]
 				
+			opennmt_file.write(sent_dict["sent_words"]+"\n")
+
 			sents.append(sent_dict)
 			sents_counter += 1
-			
+
 			if i % 1 == 0:
 			
 				if batches == 0:
@@ -690,11 +696,11 @@ class AgreementCollector(object):
 				else:
 					to_write = [[v for (k,v) in sorted(sent_dict.items(), key = lambda (k,v): k)] for sent_dict in sents]
 
-
 					write_to_csv(to_write, mode = "a", fname = fname)
 					sents = []
 					
 				batches += 1
+		opennmt_file.close()
 	
 		print "Done. Dataset saved in the datasets directory under  {}".format("deps_" + self.mode + ".csv")
 			
