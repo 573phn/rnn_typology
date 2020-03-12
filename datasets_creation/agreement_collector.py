@@ -689,7 +689,7 @@ class AgreementCollector(object):
 				if batches == 0:
 					to_write = sorted(sents[0].keys())
 
-					fname = "deps_"+self.mode+".csv"
+					fname = "deps_"+self.order+".csv"
 					
 					write_to_csv([sorted(sents[0].keys() ) ], mode = "w", fname = fname)
 				
