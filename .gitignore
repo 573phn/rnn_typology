@@ -1,4 +1,7 @@
 *.pyc
 slurm*.log
-model/*.txt
-datasets/*.csv
+.idea/
+venv/
+datasets/
+datasets_creation/data/
+model/
