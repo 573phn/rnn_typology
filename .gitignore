@@ -2,6 +2,5 @@
 slurm*.log
 .idea/
 venv/
-datasets/*.csv
 datasets_creation/data/
 model/
