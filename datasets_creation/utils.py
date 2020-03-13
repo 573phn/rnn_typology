@@ -50,12 +50,8 @@ def tokenize(fh):
 	yield sent
 
 
-def write_to_csv(sents, fname = "deps.csv", mode = "w"):
-
+def write_to_csv(sents, fname="deps.csv", mode="w"):
 	with open("../datasets/"+fname, mode) as f:
-		
 		writer = csv.writer(f, delimiter=',')
-		
 		for s in sents:
-		
 			writer.writerow(s)

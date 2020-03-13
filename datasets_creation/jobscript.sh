@@ -23,20 +23,9 @@ module load Python/2.7.16-GCCcore-8.3.0
 # Activate virtual environment
 source "${DATADIR}"/env2/bin/activate
 
-# Set variables
-agreement_marker="na-d"
-order="sov"
-
-# Zip English conll corpus for use with Ravfogel script
-zip data/dev-penn-ud.zip data/en-corp.conll
-
 # Use Rafvogel script to reorder text
 if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random)$ ]]; then
-  python2 main.py --dataset dev \
-                  --agreement-marker $agreement_marker \
-                  --add-cases 0 \
-                  --order "$1" \
-                  --mark-verb 0
+  ./run.sh "$1"
 else
   echo "${ERROR}"
   exit

@@ -1,22 +1,25 @@
 #!/bin/bash
 
-dataset="dev"
-agreement_marker="na-d"
-add_cases=0
-order="vos"
-nsubj=1
-dobj=1
-iobj=1
-mark_verb=0
-filter_no_attractor=0
-filter_attractor=0
-filter_obj=0
-filter_no_obj=0
-filter_obj_att=0
-filter_no_obj_att=0
+# Print arguments
+echo "${@}"
 
-python2 main.py --dataset $dataset --agreement-marker $agreement_marker --add-cases $add_cases --order $order --nsubj $nsubj --dobj $dobj --iobj $iobj --mark-verb $mark_verb --filter-no-att $filter_no_attractor --filter-att $filter_attractor --filter-obj $filter_obj --filter-no-obj $filter_no_obj --filter-obj-att $filter_obj_att --filter-no-obj-att $filter_no_obj_att
-dataset="train"
-python2 main.py --dataset $dataset --agreement-marker $agreement_marker --add-cases $add_cases --order $order --nsubj $nsubj --dobj $dobj --iobj $iobj --mark-verb $mark_verb --filter-no-att $filter_no_attractor --filter-att $filter_attractor --filter-obj $filter_obj --filter-no-obj $filter_no_obj --filter-obj-att $filter_obj_att --filter-no-obj-att $filter_no_obj_att
-dataset="test"
-python2 main.py --dataset $dataset --agreement-marker $agreement_marker --add-cases $add_cases --order $order --nsubj $nsubj --dobj $dobj --iobj $iobj --mark-verb $mark_verb --filter-no-att $filter_no_attractor --filter-att $filter_attractor --filter-obj $filter_obj --filter-no-obj $filter_no_obj --filter-obj-att $filter_obj_att --filter-no-obj-att $filter_no_obj_att
+ERROR=$(cat <<-END
+  run.sh: Incorrect usage.
+  Correct usage options are:
+  - run.sh [sov|svo|ovs|osv|vso|vos|random]
+END
+)
+
+# Zip English conll corpus for use with Ravfogel script
+zip data/dev-penn-ud.zip data/en-corp.conll
+
+if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random)$ ]]; then
+  python2 main.py --dataset dev \
+                  --agreement-marker "na-d" \
+                  --add-cases 0 \
+                  --order "$1" \
+                  --mark-verb 0
+else
+  echo "${ERROR}"
+  exit
+fi
