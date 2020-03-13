@@ -9,7 +9,6 @@ import time
 import agreement_markers
 import csv
 import suffixes
-import re
 
 random.seed(5)
 
@@ -466,44 +465,34 @@ class AgreementCollector(object):
 		"""
 		
 		for (node, suffix) in nodes_and_cases:
-			
-			
 			if not node.is_verb:
-
 					node.word = node.lemma.lower()
 				
 			else:
-				
 				verb_and_children = node.children[:]
 				verb_and_children.append(node)
 
 				for n in verb_and_children:
-				
-					
-					if node.word == node.pos: continue
+					if node.word == node.pos:
+						continue
 			
 					if n.word in ["was", "were"]:
-			
 						n.word = "was"
 				
 					elif n.word in ["have", "has"]:
-				
 						n.word = "have"
 					
 					elif n.word in ["is", "are"]:
 						n.word = "is"
 			
 					elif (n.pos == "VBZ" or n.pos == "VBP") and not n.lemmatized:
-
 						n.word = n.lemma
 						n.lemmatized = True
 	
 			if (not node.is_verb) or self.mark_verb:
-
 				node.word += suffix
 
 	def _get_deps(self, sent):
-	
 		tree = self._sent_to_tree(sent)
 		root = tree['root']
 		#print "===================================="
@@ -511,19 +500,18 @@ class AgreementCollector(object):
 		#	print root
 
 		for n in tree.values():
-			
 			n.word = n.word.lower()
 		
 			if n.word not in self.vocab and self.replace_uncommon:
-			
 				n.word = n.pos
 				if self.add_gender:
 					n.word += str(self.w2g[n.word])
 	
 		agreement_dict = defaultdict(list)
-		agreements_to_collect = [k for (k,v) in self.agreements.items() if v]
+		agreements_to_collect = [k for (k, v) in self.agreements.items() if v]
 
-		if "nsubj" in agreements_to_collect: agreements_to_collect.append("nsubjpass")
+		if "nsubj" in agreements_to_collect:
+			agreements_to_collect.append("nsubjpass")
 		
 		root.collect_arguemnts(agreement_dict, agreements_to_collect, self.verbs, self.argument_types) 
 
@@ -535,29 +523,26 @@ class AgreementCollector(object):
 		labels = []
 		
 		for n in nodes_dfs:
-		
 			depths.append(str(n.depth))
 			pos_tags.append(n.pos)
 			lemmas.append(n.lemma)
 			labels.append(n.label)
 			
-		is_rcmod = lambda node: node.label=="acl:relcl"
-		is_subj = lambda node: node.label =="nsubj"
+		is_rcmod = lambda node: node.label == "acl:relcl"
+		is_subj = lambda node: node.label == "nsubj"
 		deps = defaultdict(dict)
 
 		for verb_id in agreement_dict.keys():
-
 			verb_arguments = agreement_dict[verb_id]
 			verb_node = tree[verb_id]
-
 			verb_index = nodes_dfs.index(verb_node)
-			
+			"""
+			# Commented out to avoid lemmatization
 			if self.agreement_marker:
-
-					nodes_and_cases = self.agreement_marker.mark(verb_node, verb_arguments, add_gender = self.add_gender, mark_auxiliary = False)
-	
-					self._add_cases(nodes_and_cases, verb_arguments)			
-					
+				nodes_and_cases = self.agreement_marker.mark(verb_node, verb_arguments, add_gender=self.add_gender,
+															 mark_auxiliary=False)
+				self._add_cases(nodes_and_cases, verb_arguments)
+			"""
 			for argument_node in verb_arguments:
 				
 				argument_index = nodes_dfs.index(argument_node)
@@ -571,7 +556,6 @@ class AgreementCollector(object):
 				num_attractors = len(attractors)
 				attractors_words = [n.word for n in nouns_between if n.number is not None and n.number != argument_node.number]
 				
-				
 				other_arguments = [arg for arg in verb_arguments if arg != argument_node]
 				children_of_other_arguments = [arg.children for arg in other_arguments]
 				non_argument_attractors = []
@@ -581,8 +565,8 @@ class AgreementCollector(object):
 						if att in childlist and att.label == "compound":
 							is_argument = True
 					for other_argument in other_arguments:
-					 	if att is other_argument:
-					 		is_argument = True
+						if att is other_argument:
+							is_argument = True
 					if not is_argument:
 
 						non_argument_attractors.append(att)
@@ -595,21 +579,26 @@ class AgreementCollector(object):
 				else:
 					label = argument_node.label
 				
-				deps[verb_index][label] = {"index": argument_index, "number": argument_node.number, "distance": str(dis), "has_rel": str(has_rel), "has_subj": str(has_subj), "number_attractors": str(num_attractors), "pos": argument_node.pos, "attractors_words": " ".join(attractors_words), "number_non_argument_attractors": str(num_non_argument_attractors)}
+				deps[verb_index][label] = {"index": argument_index,
+										   "number": argument_node.number,
+										   "distance": str(dis),
+										   "has_rel": str(has_rel),
+										   "has_subj": str(has_subj),
+										   "number_attractors": str(num_attractors),
+										   "pos": argument_node.pos,
+										   "attractors_words": " ".join(attractors_words),
+										   "number_non_argument_attractors": str(num_non_argument_attractors)}
 				
-			
-		deps = {k:v for (k,v) in deps.iteritems() if "nsubj" in v or "nsubjpass" in v}
+		deps = {k: v for (k, v) in deps.iteritems() if "nsubj" in v or "nsubjpass" in v}
 		words = [n.word for n in nodes_dfs]
 
-		
 		sent_info = (words, tree_structure, lemmas, pos_tags, depths, labels)
 		
 		return sent_info, deps
 
-		
 	def collect_agreement(self):
 	
-		opennmt_file = open("src_"+self.order+".txt", "w")
+		opennmt_file = open("data/src_"+self.order+".txt", "w")
 		sents = []
 		t = time.time()
 		
@@ -619,63 +608,78 @@ class AgreementCollector(object):
 		
 		for i, sent in enumerate(tokenize(read(self.fname))):
 			
-			words = " ".join([tok[WORD] for tok in sent])
+			# words = " ".join([tok[WORD] for tok in sent]) # Commented out because it's not being used
 			labels = " ".join([tok[LABEL] for tok in sent])
 			
 			has_iobj = "iobj" in labels
-			if has_iobj: count_iobj += 1
-			if sent == []: continue
+			if has_iobj:
+				count_iobj += 1
+			if not sent:
+				continue
 
-			#if i % self.skip != 0:
-			#	continue
+			if i % self.skip != 0:
+				print "1: i % self.skip != 0"
+				continue
 
+			print 'sent: ', sent
 			sent_info, deps = self._get_deps(sent)
+			print 'sent info: ', sent_info
 			words, tree_structure, lemmas, pos_tags, depths, labels = sent_info
 
-			#if not deps: continue
+			# print deps
+			if not deps:
+				# print "2: not deps"
+				# continue
+				# Defining 'deps' so program leaves all sentences in
+				deps = {0: ''}
 
-			#verb_index = random.choice(deps.keys())
-			#verb_dep = deps[verb_index]
-		
-			
-			sent_dict = {}
+			verb_index = random.choice(deps.keys())
+			verb_dep = deps[verb_index]
+			print verb_index, verb_dep
+
+			sent_dict = dict()
 			sent_dict["sent_words"] = " ".join(words)
 			sent_dict["sent_structure"] = " ".join(tree_structure)
 			sent_dict["sent_pos"] = " ".join(pos_tags)
 			sent_dict["sent_lemmas"] = " ".join(lemmas)
 			sent_dict["sent_labels"] = " ".join(labels)
 			sent_dict["sent_depths"] = " ".join(depths)
-			#sent_dict["verb_index"] = str(verb_index)
-			sent_dict["verb_index"] = "-"
+			sent_dict["verb_index"] = str(verb_index)
 			sent_dict["original_sent"] = " ".join([tok[WORD] for tok in sent])
-			sent_dict["verbs_count"] = len([p for p in pos_tags if p.startswith("v") or p.startswith("V")]) 
-			
-			props = ["index", "number", "distance", "has_rel", "has_subj", "number_attractors", "number_non_argument_attractors", "pos", "attractors_words"]
+			sent_dict["verbs_count"] = len([p for p in pos_tags if p.startswith("v") or p.startswith("V")])
+
+			props = ["index", "number", "distance", "has_rel", "has_subj", "number_attractors",
+                     "number_non_argument_attractors", "pos", "attractors_words"]
 
 			for l in self.agreements:
 				
 				for prop in props:
 				
-					#val = verb_dep[l][prop] if l in verb_dep else "-"
-					val = "-"
-					sent_dict[l + "_" + prop] = val		
+					val = verb_dep[l][prop] if l in verb_dep else "-"
+					sent_dict[l + "_" + prop] = val
 			
-			if self.filter_no_att and sent_dict["nsubj_number_attractors"]=="0": 
+			if self.filter_no_att and sent_dict["nsubj_number_attractors"]=="0":
+				print '3: self.filter_no_att and sent_dict["nsubj_number_attractors"]=="0"'
 				continue
 			if self.filter_att and sent_dict["nsubj_number_attractors"]!="0":
+				print '4: self.filter_att and sent_dict["nsubj_number_attractors"]!="0"'
 				continue
 			if self.filter_obj and "dobj" in sent_dict["sent_labels"]:
+				print '5: self.filter_obj and "dobj" in sent_dict["sent_labels"]'
 				continue
 			if self.filter_no_obj and sent_dict["dobj_number"] == "-":
+				print '6: self.filter_no_obj and sent_dict["dobj_number"] == "-"'
 				continue
 			if self.filter_obj_att and sent_dict["dobj_number"] != "-" and sent_dict["dobj_number"] != sent_dict["nsubj_number"]:
+				print '7: self.filter_obj_att and sent_dict["dobj_number"] != "-" and sent_dict["dobj_number"] != sent_dict["nsubj_number"]'
 				continue
 			if self.filter_no_obj_att and (sent_dict["dobj_number"] == "-" or sent_dict["dobj_number"] == sent_dict["nsubj_number"]):
+				print '8: self.filter_no_obj_att and (sent_dict["dobj_number"] == "-" or sent_dict["dobj_number"] == sent_dict["nsubj_number"])'
 				continue
 			
 			if PRINT:	
 				print "-----------------------------"
-				#print sent_dict["dobj_number"], sent_dict["nsubj_number"]
+				# print sent_dict["dobj_number"], sent_dict["nsubj_number"]
 				print 'Original:', sent_dict["original_sent"]
 				print 'Modified:', sent_dict["sent_words"]
 				
@@ -696,15 +700,10 @@ class AgreementCollector(object):
 				else:
 					to_write = [[v for (k,v) in sorted(sent_dict.items(), key = lambda (k,v): k)] for sent_dict in sents]
 
-					write_to_csv(to_write, mode = "a", fname = fname)
+					write_to_csv(to_write, mode="a", fname=fname)
 					sents = []
 					
 				batches += 1
 		opennmt_file.close()
 	
 		print "Done. Dataset saved in the datasets directory under  {}".format("deps_" + self.mode + ".csv")
-			
-			
-		
-			
-
