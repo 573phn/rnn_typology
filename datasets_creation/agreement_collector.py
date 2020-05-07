@@ -9,6 +9,7 @@ import time
 import agreement_markers
 import csv
 import suffixes
+import pandas as pd
 
 random.seed(5)
 
@@ -19,7 +20,7 @@ POS = 4
 PARENT_INDEX = -4
 LABEL = -3
 PARENT = -1
-PRINT = True
+PRINT = False
 
 """
 This classs represents a node in a dependency parse tree. It offers methods for traversing the subtree rooted in the
@@ -557,7 +558,8 @@ class AgreementCollector(object):
         return sent_info, deps
 
     def collect_agreement(self):
-        opennmt_file = open("data/src_" + self.order + ".txt", "w")
+        #opennmt_file = open("data/src_" + self.order + ".txt", "w")
+        df = pd.DataFrame(columns=["en_" + self.order])
         sents = []
         t = time.time()
 
@@ -630,7 +632,9 @@ class AgreementCollector(object):
                 print 'Modified:', sent_dict["sent_words"]
                 print "-----------------------------"
 
-            opennmt_file.write(sent_dict["sent_words"] + "\n")
+            #opennmt_file.write(sent_dict["sent_words"] + "\n")
+            df.loc[i] = sent_dict["sent_words"]
+            
 
             sents.append(sent_dict)
             sents_counter += 1
@@ -647,6 +651,7 @@ class AgreementCollector(object):
                     sents = []
 
                 batches += 1
-        opennmt_file.close()
+        #opennmt_file.close()
+        df.to_hdf("en_" + self.order + ".h5", key=self.order, mode='w')
 
         print "Done. Dataset saved in the datasets directory under {}".format("deps_" + self.order + ".csv")
