@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=rnn_typology
 #SBATCH --output=slurm/slurm-%j.log
-#SBATCH --time=10:00
+#SBATCH --time=1-12:00:00
 #SBATCH --mem=8GB
 #SBATCH --partition=regular
 
@@ -25,7 +25,12 @@ source "${DATADIR}"/env2/bin/activate
 
 # Use Rafvogel script to reorder text
 if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random)$ ]]; then
-  ./run.sh "$1"
+  python2 main.py --dataset dev \
+                  --agreement-marker "na-d" \
+                  --add-cases 0 \
+                  --order "$1" \
+                  --mark-verb 0
+
 else
   echo "${ERROR}"
   exit
