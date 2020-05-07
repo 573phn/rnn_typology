@@ -19,4 +19,4 @@ source "${DATADIR}"/env2/bin/activate
 pip2 install --upgrade pip==19.2.3
 
 # Install required packages (inside virtual environment)
-pip2 install numpy==1.16.6 dynet==2.0.3
+pip2 install numpy==1.16.6 dynet==2.0.3 pandas==0.24.2 tables==3.5.2
