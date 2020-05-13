@@ -13,5 +13,5 @@ The arguments specified in `main.py` allow controlling for various parameters, s
 
 1. Run `./setup.sh` to setup a virtual environment and install the required packages
 2. Run `sbatch jobscript.sh [sov|svo|ovs|osv|vso|vos|random]`, this will
-  * let the Ravfogel code reorder the data contained in `datasets_creation/data/dev-penn-ud.zip`
-  * write output data to `datasets/deps[wo].csv` as well as `datasets_creation/en_[wo].h5` ([HDF5 file format](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5))
+   * let the Ravfogel code reorder the data contained in `datasets_creation/data/dev-penn-ud.zip`
+   * write output data to `datasets/deps[wo].csv` as well as `datasets_creation/en_[wo].h5` ([HDF5 file format](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5))
