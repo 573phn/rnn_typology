@@ -296,7 +296,7 @@ class AgreementCollector(object):
     def __init__(self, mode="train", skip=1, fname=None, order=None, agreement_marker=None, agreements=None,
                  argument_types=None, verbs=None, most_common=200000, mark_verb=True, replace_uncommon=False,
                  add_gender=True, filter_no_att=False, filter_att=False, filter_obj=False, filter_no_obj=False,
-                 filter_obj_att=False, filter_no_obj_att=False):
+                 filter_obj_att=False, filter_no_obj_att=False, print_txt=False):
         if agreements is None:
             agreements = dict()
         self.skip = skip
@@ -317,6 +317,7 @@ class AgreementCollector(object):
         self.filter_no_obj = filter_no_obj
         self.filter_obj_att = filter_obj_att
         self.filter_no_obj_att = filter_no_obj_att
+        self.print_txt = print_txt
 
         self._load_freq_dict()
 
@@ -558,7 +559,13 @@ class AgreementCollector(object):
         return sent_info, deps
 
     def collect_agreement(self):
-        #opennmt_file = open("data/src_" + self.order + ".txt", "w")
+        textfilename_orig = "../datasets/deps_orig" + ".txt"
+        textfilename = "../datasets/deps_" + self.order + ".txt"
+        textfile_orig = None
+        textfile = None
+        if self.print_txt:
+            textfile_orig = open(textfilename_orig, "w")
+            textfile = open(textfilename, "w")
         df = pd.DataFrame(columns=["en_" + self.order])
         sents = []
         t = time.time()
@@ -632,7 +639,9 @@ class AgreementCollector(object):
                 print 'Modified:', sent_dict["sent_words"]
                 print "-----------------------------"
 
-            #opennmt_file.write(sent_dict["sent_words"] + "\n")
+            if self.print_txt:
+                textfile_orig.write(sent_dict["original_sent"].lower() + "\n")
+                textfile.write(sent_dict["sent_words"] + "\n")
             df.loc[i] = sent_dict["sent_words"]
             
 
@@ -651,7 +660,10 @@ class AgreementCollector(object):
                     sents = []
 
                 batches += 1
-        #opennmt_file.close()
+        
+        if self.print_txt:
+            textfile_orig.close()
+            textfile.close()
         df.to_hdf("en_" + self.order + ".h5", key=self.order, mode='w')
 
         print "Done. Dataset saved in the datasets directory under {}".format("deps_" + self.order + ".csv")

@@ -13,7 +13,7 @@ DATADIR='/data/'"${USER}"'/rnn_typology'
 ERROR=$(cat <<-END
   jobscript.sh: Incorrect usage.
   Correct usage options are:
-  - jobscript.sh [sov|svo|ovs|osv|vso|vos|random]
+  - jobscript.sh [sov|svo|ovs|osv|vso|vos|random] [0|1]
 END
 )
 
@@ -24,12 +24,13 @@ module load Python/2.7.16-GCCcore-8.3.0
 source "${DATADIR}"/env2/bin/activate
 
 # Use Rafvogel script to reorder text
-if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random)$ ]]; then
+if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random)$ ]] && [[ "$2" =~ ^(0|1)$ ]] ; then
   python2 main.py --dataset dev \
                   --agreement-marker "na-d" \
                   --add-cases 0 \
                   --order "$1" \
-                  --mark-verb 0
+                  --mark-verb 0 \
+                  --print-txt $2
 
 else
   echo "${ERROR}"
