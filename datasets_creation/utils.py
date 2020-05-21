@@ -1,6 +1,7 @@
 from collections import Counter
 import csv
 import subprocess
+from getpass import getuser
 
 
 def get_all_ngrams(words, n=5):
@@ -51,7 +52,7 @@ def tokenize(fh):
 
 
 def write_to_csv(sents, fname="deps.csv", mode="w"):
-	with open("../datasets/"+fname, mode) as f:
+	with open("/data/{}/rnn_typology/".format(getuser())+fname, mode) as f:
 		writer = csv.writer(f, delimiter=',')
 		for s in sents:
 			writer.writerow(s)
