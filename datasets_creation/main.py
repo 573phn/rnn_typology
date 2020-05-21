@@ -11,7 +11,7 @@ if __name__ == "__main__":
 	parser.add_argument('--agreement-marker', type=str, choices=['na-d','na-s','na-a', 'ea-d','ea-s','ea-a'], help = "agreement marker. na-d: nominative accusative, deterministic; na-s: nominative accusative,syncretistic; na-a: nominative accusative, fully ambigious; ea-d: ergative absolutive, deterministic; ea-s: ergative absolutive, syncretistic; ea-a: ergative absolutive, fully ambigious", required = True, dest = "agreement_marker")
 	parser.add_argument('--add-cases', type=int, choices=[1, 0], help = "whether or not to explicitly mark cases", required = True, dest = "add_cases")
 
-	parser.add_argument('--order', type=str, choices=["sov", "svo", "ovs", "osv", "vso", "vos", "random"], help = "word order", required = True)
+	parser.add_argument('--order', type=str, choices=["sov", "svo", "ovs", "osv", "vso", "vos", "random", "vso60rest8", "vso30rest14", "vos60rest8", "vos30rest14"], help = "word order", required = True)
 	
 	parser.add_argument('--nsubj', type=int, choices=[1,0], help = "whether or not to include subject-verb agreement", required = False, default = True)
 	parser.add_argument('--dobj', type=int, choices=[1,0], help = "whether or not to include object-verb agreement", required = False, default = True)
