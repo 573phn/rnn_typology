@@ -10,6 +10,7 @@ import agreement_markers
 import csv
 import suffixes
 import pandas as pd
+from getpass import getuser
 
 random.seed(5)
 
@@ -652,6 +653,6 @@ class AgreementCollector(object):
 
                 batches += 1
         #opennmt_file.close()
-        df.to_hdf("en_" + self.order + ".h5", key=self.order, mode='w')
+        df.to_json("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", key=self.order, compression="gzip")
 
-        print "Done. Dataset saved in the datasets directory under {}".format("deps_" + self.order + ".csv")
+        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"/'"
