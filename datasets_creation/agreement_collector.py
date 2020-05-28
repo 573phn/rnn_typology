@@ -14,6 +14,7 @@ from getpass import getuser
 import numpy as np
 
 random.seed(5)
+np.random.seed(5)
 
 INDEX = 0
 WORD = 1
@@ -572,7 +573,6 @@ class AgreementCollector(object):
         return sent_info, deps
 
     def collect_agreement(self):
-        #opennmt_file = open("data/src_" + self.order + ".txt", "w")
         df = pd.DataFrame(columns=["en_" + self.order])
         sents = []
         t = time.time()
@@ -646,7 +646,6 @@ class AgreementCollector(object):
                 print 'Modified:', sent_dict["sent_words"]
                 print "-----------------------------"
 
-            #opennmt_file.write(sent_dict["sent_words"] + "\n")
             df.loc[i] = sent_dict["sent_words"]
             
 
@@ -665,7 +664,14 @@ class AgreementCollector(object):
                     sents = []
 
                 batches += 1
-        #opennmt_file.close()
-        df.to_json("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", key=self.order, compression="gzip")
 
-        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"/'"
+        # save DataFrame to .h5 file
+        df.to_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5", key=self.order, mode="w")
+        
+        # open saved .h5 file, save its contents as .json (workaround to be able to open it in Python 3 later)
+        df = pd.read_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5")
+        json_string = df.to_json(compression="gzip")
+        with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", "w") as fp:
+            fp.write(json_string)
+
+        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"'"
