@@ -656,11 +656,11 @@ class AgreementCollector(object):
                 if batches == 0:
                     to_write = [sorted(sents[0].keys())]
                     fname = "deps_" + self.order + ".csv"
-                    # write_to_csv(to_write, mode="w", fname=fname)
+                    write_to_csv(to_write, mode="w", fname=fname)
                 else:
                     to_write = [[v for (k, v) in sorted(sent_dict.items(), key=lambda (k, v): k)] for sent_dict in
                                 sents]
-                    # write_to_csv(to_write, mode="a", fname=fname)
+                    write_to_csv(to_write, mode="a", fname=fname)
                     sents = []
 
                 batches += 1
