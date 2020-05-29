@@ -18,6 +18,7 @@ if __name__ == "__main__":
 	parser.add_argument('--dobj', type=int, choices=[1,0], help = "whether or not to include object-verb agreement", required = False, default = True)
 	parser.add_argument('--iobj', type=int, choices=[1,0], help = "whether or not to include indirect-object-verb agreement", required = False, default = True)
 	parser.add_argument('--mark-verb', type=int, choices=[1,0], help = "whether or not to add agreement marking to verbs", required = False, default = True, dest = "mark_verb")
+        parser.add_argument('--lemmatize', type=int, choices=[1,0], help = "whether or not to lemmatize verbs (before possible addition of artificial case suffixes)", required = False, default = True)
 	
 	parser.add_argument('--filter-no-att', type=int, choices=[1,0], help = "whether to filter out agreement instances without subject-verb attractors", required = False, default = False, dest = "filter_no_att")
 	parser.add_argument('--filter-att', type=int, choices=[1,0], help = "whether to filter out agreement instances with subject-verb attractors", required = False, default = False, dest = "filter_att")                        
@@ -45,5 +46,5 @@ if __name__ == "__main__":
 	argument_types = None # ["NNS", "NNP"]
 	verbs = None# ["VBP", "VBZ"]
 	
-	collector = agreement_collector.AgreementCollector(mode=args.dataset, skip = 1, agreement_marker = agreement_marker, order = args.order, agreements = agreements, argument_types = argument_types, verbs = verbs, most_common = 200000, mark_verb = args.mark_verb,  fname = "data/" + args.dataset + "-penn-ud.zip", replace_uncommon  = False, add_gender = False, filter_no_att = args.filter_no_att, filter_att = args.filter_att, filter_obj = args.filter_obj, filter_no_obj= args.filter_no_obj, filter_obj_att = args.filter_obj_att, filter_no_obj_att = args.filter_no_obj_att, print_txt = args.print_txt)
+	collector = agreement_collector.AgreementCollector(mode=args.dataset, skip = 1, agreement_marker = agreement_marker, order = args.order, agreements = agreements, argument_types = argument_types, verbs = verbs, most_common = 200000, mark_verb = args.mark_verb, lemmatize_verbs = args.lemmatize, fname = "data/" + args.dataset + "-penn-ud.zip", replace_uncommon  = False, add_gender = False, filter_no_att = args.filter_no_att, filter_att = args.filter_att, filter_obj = args.filter_obj, filter_no_obj= args.filter_no_obj, filter_obj_att = args.filter_obj_att, filter_no_obj_att = args.filter_no_obj_att, print_txt = args.print_txt)
 	collector.collect_agreement()

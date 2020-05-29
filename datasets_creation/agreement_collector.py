@@ -309,7 +309,7 @@ def is_subj(node):
 
 class AgreementCollector(object):
     def __init__(self, mode="train", skip=1, fname=None, order=None, agreement_marker=None, agreements=None,
-                 argument_types=None, verbs=None, most_common=200000, mark_verb=True, replace_uncommon=False,
+                 argument_types=None, verbs=None, most_common=200000, mark_verb=True, lemmatize_verbs=True, replace_uncommon=False,
                  add_gender=True, filter_no_att=False, filter_att=False, filter_obj=False, filter_no_obj=False,
                  filter_obj_att=False, filter_no_obj_att=False, print_txt=False):
         if agreements is None:
@@ -321,6 +321,7 @@ class AgreementCollector(object):
         self.agreements = agreements
         self.most_common = most_common
         self.mark_verb = mark_verb
+        self.lemmatize_verbs = lemmatize_verbs 
         self.mode = mode
         self.verbs = verbs
         self.argument_types = argument_types
@@ -516,13 +517,14 @@ class AgreementCollector(object):
             verb_arguments = agreement_dict[verb_id]
             verb_node = tree[verb_id]
             verb_index = nodes_dfs.index(verb_node)
-            """
-            # Commented out to avoid lemmatization
-            if self.agreement_marker:
+
+            # lemmatization of verbs happens here unless disabled by option '-lemmatize 0'
+            if self.agreement_marker and self.lemmatize_verbs :
                 nodes_and_cases = self.agreement_marker.mark(verb_node, verb_arguments, add_gender=self.add_gender,
                                                              mark_auxiliary=False)
                 self._add_cases(nodes_and_cases, verb_arguments)
-            """
+
+
             for argument_node in verb_arguments:
 
                 argument_index = nodes_dfs.index(argument_node)
@@ -586,7 +588,7 @@ class AgreementCollector(object):
             print "-----------------------------"
 
         textfilename_orig = "../datasets/deps_orig" + ".txt"
-        textfilename = "../datasets/deps_" + self.order + ".txt"
+        textfilename = "../datasets/deps_" + self.order + "_" + self.agreement_marker.get_type() + ".txt"
         textfile_orig = None
         textfile = None
         if self.print_txt:

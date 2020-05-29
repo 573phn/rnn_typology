@@ -30,6 +30,7 @@ if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random|vso60rest8|vso30rest14|vos60rest8
                   --add-cases 0 \
                   --order "$1" \
                   --mark-verb 0 \
+                  --lemmatize 0 \
                   --print-txt $2
 
 else

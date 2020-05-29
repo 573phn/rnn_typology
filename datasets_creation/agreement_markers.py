@@ -74,6 +74,9 @@ class AgreementMarker(object):
 	def get_case(self, verb_node, agreement_node, is_transitive):
 	
 		raise NotImplementedError
+
+        def get_type(self):
+                return "none"
 		
 		
 class NominativeAccusativeMarker(AgreementMarker):
@@ -99,7 +102,9 @@ class NominativeAccusativeMarker(AgreementMarker):
 			case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
 		return case
-		
+
+        def get_type(self):
+                return "na-d"
 
 class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 
@@ -125,6 +130,9 @@ class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 			case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
 		return case
+
+        def get_type(self):
+                return "na-s"
 
 		
 class ErgativeAbsolutiveMarker(AgreementMarker):
@@ -186,3 +194,5 @@ class ArgumentPresenceMarker(AgreementMarker):
 		
 		return case
 		
+        def get_type(self):
+                return "na-a"
