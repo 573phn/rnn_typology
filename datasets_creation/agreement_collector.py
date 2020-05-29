@@ -10,6 +10,8 @@ import agreement_markers
 import csv
 import suffixes
 import pandas as pd
+from getpass import getuser
+import numpy as np
 
 random.seed(5)
 
@@ -103,6 +105,18 @@ class Node(object):
 
         if order == "random":
             order = random.choice(["svo", "sov", "vso", "vos", "osv", "ovs"])
+            
+        if order == "vso60rest8":
+            order = np.random.choice(["vso", "svo", "sov", "vos", "osv", "ovs"], p=[0.6]+[0.4/5]*5)
+        if order == "vso30rest14":
+            order = np.random.choice(["vso", "svo", "sov", "vos", "osv", "ovs"], p=[0.3]+[0.7/5]*5)
+
+        if order == "vos60rest8":
+            order = np.random.choice(["vos", "vso", "svo", "sov", "osv", "ovs"], p=[0.6]+[0.4/5]*5)
+        if order == "vos30rest14":
+            order = np.random.choice(["vos", "vso", "svo", "sov", "osv", "ovs"], p=[0.3]+[0.7/5]*5)
+            
+            
 
         if not self.is_verb or order is None:
             """
@@ -328,7 +342,7 @@ class AgreementCollector(object):
         if not any(agreements.values()):
             raise Exception("Expecting at least one verb-argument agreement to collect.")
 
-        if self.order is not None and self.order not in ["svo", "sov", "vso", "vos", "osv", "ovs", "random"]:
+        if self.order is not None and self.order not in ["svo", "sov", "vso", "vos", "osv", "ovs", "random", "vso60rest8", "vso30rest14", "vos60rest8", "vos30rest14"]:
             raise Exception("Unrecognized order order.")
 
     def _load_freq_dict(self):
@@ -652,18 +666,19 @@ class AgreementCollector(object):
                 if batches == 0:
                     to_write = [sorted(sents[0].keys())]
                     fname = "deps_" + self.order + ".csv"
-                    write_to_csv(to_write, mode="w", fname=fname)
+                    # write_to_csv(to_write, mode="w", fname=fname)
                 else:
                     to_write = [[v for (k, v) in sorted(sent_dict.items(), key=lambda (k, v): k)] for sent_dict in
                                 sents]
-                    write_to_csv(to_write, mode="a", fname=fname)
+                    # write_to_csv(to_write, mode="a", fname=fname)
                     sents = []
 
                 batches += 1
-        
+
         if self.print_txt:
             textfile_orig.close()
             textfile.close()
-        df.to_hdf("en_" + self.order + ".h5", key=self.order, mode='w')
+        df.to_json("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", key=self.order, compression="gzip")
 
-        print "Done. Dataset saved in the datasets directory under {}".format("deps_" + self.order + ".csv")
+
+        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"/'"
