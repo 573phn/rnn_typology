@@ -14,6 +14,7 @@ from getpass import getuser
 import numpy as np
 
 random.seed(5)
+np.random.seed(5)
 
 INDEX = 0
 WORD = 1
@@ -573,13 +574,6 @@ class AgreementCollector(object):
         return sent_info, deps
 
     def collect_agreement(self):
-        textfilename_orig = "../datasets/deps_orig" + ".txt"
-        textfilename = "../datasets/deps_" + self.order + ".txt"
-        textfile_orig = None
-        textfile = None
-        if self.print_txt:
-            textfile_orig = open(textfilename_orig, "w")
-            textfile = open(textfilename, "w")
         df = pd.DataFrame(columns=["en_" + self.order])
         sents = []
         t = time.time()
@@ -590,6 +584,14 @@ class AgreementCollector(object):
 
         if PRINT:
             print "-----------------------------"
+
+        textfilename_orig = "../datasets/deps_orig" + ".txt"
+        textfilename = "../datasets/deps_" + self.order + ".txt"
+        textfile_orig = None
+        textfile = None
+        if self.print_txt:
+            textfile_orig = open(textfilename_orig, "w")
+            textfile = open(textfilename, "w")
 
         for i, sent in enumerate(tokenize(read(self.fname))):
             words = " ".join([tok[WORD] for tok in sent])
@@ -656,6 +658,7 @@ class AgreementCollector(object):
             if self.print_txt:
                 textfile_orig.write(sent_dict["original_sent"].lower() + "\n")
                 textfile.write(sent_dict["sent_words"] + "\n")
+
             df.loc[i] = sent_dict["sent_words"]
             
 
@@ -666,19 +669,26 @@ class AgreementCollector(object):
                 if batches == 0:
                     to_write = [sorted(sents[0].keys())]
                     fname = "deps_" + self.order + ".csv"
-                    # write_to_csv(to_write, mode="w", fname=fname)
+                    write_to_csv(to_write, mode="w", fname=fname)
                 else:
                     to_write = [[v for (k, v) in sorted(sent_dict.items(), key=lambda (k, v): k)] for sent_dict in
                                 sents]
-                    # write_to_csv(to_write, mode="a", fname=fname)
+                    write_to_csv(to_write, mode="a", fname=fname)
                     sents = []
 
                 batches += 1
 
+        # save DataFrame to .h5 file
+        df.to_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5", key=self.order, mode="w")
+        
+        # open saved .h5 file, save its contents as .json (workaround to be able to open it in Python 3 later)
+        df = pd.read_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5")
+        json_string = df.to_json(compression="gzip")
+        with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", "w") as fp:
+            fp.write(json_string)
+
         if self.print_txt:
             textfile_orig.close()
             textfile.close()
-        df.to_json("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", key=self.order, compression="gzip")
 
-
-        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"/'"
+        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"'"
