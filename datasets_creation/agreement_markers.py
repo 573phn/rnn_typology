@@ -21,9 +21,19 @@ Case system:
 	INDIRECT OBJECT / DATIVE		@			&
 """
 
+"""
+NOTE on verb suffixes:
+        # verbs used to be marked by both subj and obj agreement
+        # now it depends on the chosen Case System:
+        # - deterministic system (na-d)         => marks verbs w/ both subj and obj (polypersonal agreement)
+        # - argument-marking-only system (na-a) => marks verbs w/ subj agreement only (inspired by Russian)
+        #
+        # NOTE: other case systems have not been modified according (i.e. mark polypersonal agreement by default) 
+"""
+
 class AgreementMarker(object):
 
-	def __init__(self, add_cases):
+	def __init__(self, add_cases, verb_agr_subj_only = False):
 	
 		"""
 		
@@ -33,6 +43,7 @@ class AgreementMarker(object):
 		"""
 		
 		self.add_cases = add_cases
+                self.verb_agr_subj_only = verb_agr_subj_only
                 self.name = "none"
 		
 	def mark(self, verb_node, agreement_nodes, add_gender = False, mark_auxiliary = True):
@@ -46,10 +57,11 @@ class AgreementMarker(object):
 			case = self.get_case(verb_node, agreement_node, is_transitive)
 			gender = "" if not add_gender else agreement_node.gender
 			
-			verb_suffix.append((case, gender))
+                        if (not self.verb_agr_subj_only) or \
+                           agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass":
+                                verb_suffix.append((case, gender))
 
-			if self.add_cases:
-				
+			if self.add_cases:				
 				cases.append((agreement_node, case))
 
 
@@ -82,8 +94,8 @@ class AgreementMarker(object):
 		
 class NominativeAccusativeMarker(AgreementMarker):
 
-	def __init__(self, add_cases = False):
-		super(NominativeAccusativeMarker, self).__init__(add_cases)
+	def __init__(self, add_cases = False, verb_agr_subj_only = False):
+		super(NominativeAccusativeMarker, self).__init__(add_cases,verb_agr_subj_only)
                 if self.add_cases:
                         self.name = "na-d"
 		
@@ -108,8 +120,8 @@ class NominativeAccusativeMarker(AgreementMarker):
 
 class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 
-	def __init__(self, add_cases = False):
-		super(AmbigiousNominativeAccusativeMarker, self).__init__(add_cases)
+	def __init__(self, add_cases = False, verb_agr_subj_only = False):
+		super(AmbigiousNominativeAccusativeMarker, self).__init__(add_cases,verb_agr_subj_only)
                 if self.add_cases:
                         self.name = "na-s"
 
@@ -135,8 +147,8 @@ class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 		
 class ErgativeAbsolutiveMarker(AgreementMarker):
 
-	def __init__(self, add_cases=False):
-		super(ErgativeAbsolutiveMarker, self).__init__(add_cases)
+	def __init__(self, add_cases=False, verb_agr_subj_only = False):
+		super(ErgativeAbsolutiveMarker, self).__init__(add_cases,verb_agr_subj_only)
                 if self.add_cases:
                         self.name = "ea-d"
 		
@@ -161,8 +173,8 @@ class ErgativeAbsolutiveMarker(AgreementMarker):
 		
 class AmbigiousErgativeAbsolutiveMarker(AgreementMarker):
 
-	def __init__(self, add_cases=False):
-		super(AmbigiousErgativeAbsolutiveMarker, self).__init__(add_cases)
+	def __init__(self, add_cases=False, verb_agr_subj_only=False):
+		super(AmbigiousErgativeAbsolutiveMarker, self).__init__(add_cases,verb_agr_subj_only)
                 if self.add_cases:
                         self.name = "ea-s"
 
@@ -187,14 +199,14 @@ class AmbigiousErgativeAbsolutiveMarker(AgreementMarker):
 
 class ArgumentPresenceMarker(AgreementMarker):
 
-	def __init__(self, add_cases=False):
-		super(ArgumentPresenceMarker, self).__init__(add_cases)
+	def __init__(self, add_cases=False, verb_agr_subj_only=True):
+		super(ArgumentPresenceMarker, self).__init__(add_cases,verb_agr_subj_only)
                 if self.add_cases:
                         self.name = "na-a"
 		
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
-		case = suffixes.dobj_sg if agreement_node.number == "sg" else suffixes.dobj_pl
+		case = suffixes.arg_sg if agreement_node.number == "sg" else suffixes.arg_pl
 		
 		return case
 
