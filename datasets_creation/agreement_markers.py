@@ -33,6 +33,7 @@ class AgreementMarker(object):
 		"""
 		
 		self.add_cases = add_cases
+                self.name = "none"
 		
 	def mark(self, verb_node, agreement_nodes, add_gender = False, mark_auxiliary = True):
 	
@@ -75,14 +76,16 @@ class AgreementMarker(object):
 	
 		raise NotImplementedError
 
-        def get_type(self):
-                return "none"
+        def get_name(self):
+                return self.name
 		
 		
 class NominativeAccusativeMarker(AgreementMarker):
 
 	def __init__(self, add_cases = False):
 		super(NominativeAccusativeMarker, self).__init__(add_cases)
+                if self.add_cases:
+                        self.name = "na-d"
 		
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
@@ -103,14 +106,13 @@ class NominativeAccusativeMarker(AgreementMarker):
 
 		return case
 
-        def get_type(self):
-                return "na-d"
-
 class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 
 	def __init__(self, add_cases = False):
 		super(AmbigiousNominativeAccusativeMarker, self).__init__(add_cases)
-		
+                if self.add_cases:
+                        self.name = "na-s"
+
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
 		#print "adding case to node ", agreement_node.word
@@ -130,15 +132,13 @@ class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 			case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
 		return case
-
-        def get_type(self):
-                return "na-s"
-
 		
 class ErgativeAbsolutiveMarker(AgreementMarker):
 
 	def __init__(self, add_cases=False):
 		super(ErgativeAbsolutiveMarker, self).__init__(add_cases)
+                if self.add_cases:
+                        self.name = "ea-d"
 		
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
@@ -163,7 +163,9 @@ class AmbigiousErgativeAbsolutiveMarker(AgreementMarker):
 
 	def __init__(self, add_cases=False):
 		super(AmbigiousErgativeAbsolutiveMarker, self).__init__(add_cases)
-		
+                if self.add_cases:
+                        self.name = "ea-s"
+
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
 		is_subj = agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass"
@@ -187,12 +189,12 @@ class ArgumentPresenceMarker(AgreementMarker):
 
 	def __init__(self, add_cases=False):
 		super(ArgumentPresenceMarker, self).__init__(add_cases)
+                if self.add_cases:
+                        self.name = "na-a"
 		
 	def get_case(self, verb_node, agreement_node, is_transitive):
 
 		case = suffixes.dobj_sg if agreement_node.number == "sg" else suffixes.dobj_pl
 		
 		return case
-		
-        def get_type(self):
-                return "na-a"
+

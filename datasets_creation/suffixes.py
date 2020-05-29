@@ -1,4 +1,5 @@
-explicit = False
+#explicit = False
+explicit = True 
 
 nsubj_sg = "kar" if not explicit else ".nsubj.sg"
 nsubj_pl = "kon" if not explicit else ".nsubj.pl"

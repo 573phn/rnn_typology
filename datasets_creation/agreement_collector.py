@@ -587,8 +587,10 @@ class AgreementCollector(object):
         if PRINT:
             print "-----------------------------"
 
+        file_suffix = self.order + "_"
+        
         textfilename_orig = "../datasets/deps_orig" + ".txt"
-        textfilename = "../datasets/deps_" + self.order + "_" + self.agreement_marker.get_type() + ".txt"
+        textfilename = "../datasets/deps_" + self.order + "_" + self.agreement_marker.get_name() + ".txt"
         textfile_orig = None
         textfile = None
         if self.print_txt:
