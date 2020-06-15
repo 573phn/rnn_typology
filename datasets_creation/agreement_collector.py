@@ -684,7 +684,9 @@ class AgreementCollector(object):
 
         # save DataFrame to .h5 file
         df.to_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5", key=self.order, mode="w")
-        
+        # TODO : change name as in following filename
+        # textfilename = "../datasets/deps_" + self.order + "_" + self.agreement_marker.get_name() + ".txt"
+
         # open saved .h5 file, save its contents as .json (workaround to be able to open it in Python 3 later)
         df = pd.read_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5")
         json_string = df.to_json(compression="gzip")
