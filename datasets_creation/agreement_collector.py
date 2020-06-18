@@ -682,15 +682,13 @@ class AgreementCollector(object):
 
                 batches += 1
 
-        # save DataFrame to .h5 file
-        df.to_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5", key=self.order, mode="w")
-        # TODO : change name as in following filename
-        # textfilename = "../datasets/deps_" + self.order + "_" + self.agreement_marker.get_name() + ".txt"
+        # save DataFrame to feather file
+        df.to_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker + ".ftr")
 
-        # open saved .h5 file, save its contents as .json (workaround to be able to open it in Python 3 later)
-        df = pd.read_hdf("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".h5")
+        # open saved feather file, save its contents as .json (workaround to be able to open it in Python 3 later)
+        df = pd.read_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker + ".ftr")
         json_string = df.to_json(compression="gzip")
-        with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + ".json.gz", "w") as fp:
+        with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker + ".json.gz", "w") as fp:
             fp.write(json_string)
 
         if self.print_txt:
