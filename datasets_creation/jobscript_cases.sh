@@ -2,13 +2,13 @@
 #set -x
 
 #SBATCH --job-name=rnn_typology
-#SBATCH --output=slurm/slurm-%j.log
-#SBATCH --time=1-12:00:00
-#SBATCH --mem=8GB
+#SBATCH --output=slurm/jobscript_cases-%j.log
+#SBATCH --time=3-00:00:00
+#SBATCH --mem=64GB
 #SBATCH --partition=regular
 
 # Print arguments
-echo "${@}"
+echo "jobscript_cases.sh" "${@}"
 
 # Set variables
 DATADIR='/data/'"${USER}"'/rnn_typology'
@@ -35,7 +35,7 @@ if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random|vso60rest8|vso30rest14|vos60rest8
                   --add-cases 1 \
                   --agreement-marker "$2" \
                   --mark-verb 1 \
-                  --print-txt $3
+                  --print-txt "$3"
 
 else
   echo "${ERROR}"
