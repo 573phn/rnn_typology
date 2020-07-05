@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 
-#SBATCH --job-name=rnn_typology
+#SBATCH --job-name=rnn_typology_cases
 #SBATCH --output=slurm/jobscript_cases-%j.log
 #SBATCH --time=3-00:00:00
 #SBATCH --mem=64GB
@@ -31,11 +31,13 @@ if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random|vso60rest8|vso30rest14|vos60rest8
     && [[ "$2" =~ ^(na-d|na-s|na-a)$ ]] \
     && [[ "$3" =~ ^(0|1)$ ]]; then
   python2 main.py --dataset dev \
-                  --order "$1" \
-                  --add-cases 1 \
                   --agreement-marker "$2" \
+                  --add-cases 1 \
+                  --order "$1" \
                   --mark-verb 1 \
-                  --print-txt "$3"
+                  --lemmatize 1 \
+                  --print-txt "$3" \
+                  --random-seed 5
 
 else
   echo "${ERROR}"

@@ -3,3 +3,4 @@ slurm*.log
 .idea/
 venv/
 model/
+datasets_creation/slurm/
