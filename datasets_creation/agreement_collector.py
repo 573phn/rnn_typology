@@ -13,10 +13,6 @@ import pandas as pd
 from getpass import getuser
 import numpy as np
 
-random_seed = 5
-random.seed(random_seed)
-np.random.seed(random_seed)
-
 INDEX = 0
 WORD = 1
 LEMMA = 2
@@ -33,7 +29,7 @@ node in a specific order, finding the number of a NP node and collecting verb ar
 
 
 class Node(object):
-    def __init__(self, tok_id, word, lemma, pos, label):
+    def __init__(self, tok_id, word, lemma, pos, label, random_seed):
         self.key = tok_id
         self.tok_id = tok_id
         self.word = word
@@ -50,6 +46,8 @@ class Node(object):
 
         self.root = False
         self.depth = 0
+        
+        self.random_seed = random_seed
 
     def __eq__(self, other):
         return self.key == other.key
@@ -104,6 +102,8 @@ class Node(object):
                     a list containing a nested parantheses strings representing sentence structure
                     e.g. ["(", "(", "The", "man", ")", ...]
         """
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
 
         if order == "random":
             order = random.choice(["svo", "sov", "vso", "vos", "osv", "ovs"])
@@ -312,7 +312,7 @@ class AgreementCollector(object):
     def __init__(self, mode="train", skip=1, fname=None, order=None, agreement_marker=None, agreements=None,
                  argument_types=None, verbs=None, most_common=200000, mark_verb=True, lemmatize_verbs=True, replace_uncommon=False,
                  add_gender=True, filter_no_att=False, filter_att=False, filter_obj=False, filter_no_obj=False,
-                 filter_obj_att=False, filter_no_obj_att=False, print_txt=False, random_seed_arg=None):
+                 filter_obj_att=False, filter_no_obj_att=False, print_txt=False, random_seed=5):
         if agreements is None:
             agreements = dict()
         self.skip = skip
@@ -336,8 +336,7 @@ class AgreementCollector(object):
         self.filter_no_obj_att = filter_no_obj_att
         self.print_txt = print_txt
         
-        global random_seed
-        random_seed = random_seed_arg
+        self.random_seed = random_seed
 
         self._load_freq_dict()
 
@@ -349,7 +348,7 @@ class AgreementCollector(object):
             raise Exception("Expecting at least one verb-argument agreement to collect.")
 
         if self.order is not None and self.order not in ["svo", "sov", "vso", "vos", "osv", "ovs", "random", "vso60rest8", "vso30rest14", "vos60rest8", "vos30rest14"]:
-            raise Exception("Unrecognized order order.")
+            raise Exception("Unrecognized word order.")
 
     def _load_freq_dict(self):
         vocab = set()
@@ -370,6 +369,7 @@ class AgreementCollector(object):
         w2g = dict()
 
         for w in self.vocab:
+            random.seed(self.random_seed)
             if random.random() < 0.5:
                 w2g[w] = 0
             else:
@@ -405,13 +405,14 @@ class AgreementCollector(object):
             pos = tok[POS]
             label = tok[LABEL]
             parent = int(tok[PARENT_INDEX]) - 1
-            node = Node(tok_id, word, lemma, pos, label)
+            node = Node(tok_id, word, lemma, pos, label, self.random_seed)
 
             if self.add_gender:
                 if word in self.w2g:
                     gender = self.w2g[word]
 
                 else:
+                    random.seed(self.random_seed)
                     gender = random.choice(["0", "1"])
                     self.w2g[word] = gender
 
@@ -587,7 +588,7 @@ class AgreementCollector(object):
         batches = 0
         sents_counter = 0
         count_iobj = 0.
-
+        
         if PRINT:
             print "-----------------------------"
 
@@ -600,6 +601,9 @@ class AgreementCollector(object):
         if self.print_txt:
             textfile_orig = open(textfilename_orig, "w")
             textfile = open(textfilename, "w")
+        
+        if self.mode == "control":
+            control_file = open("/home/{}/EuroNMT/data/control/".format(getuser())+"en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".txt", "w+")
 
         for i, sent in enumerate(tokenize(read(self.fname))):
             words = " ".join([tok[WORD] for tok in sent])
@@ -620,6 +624,7 @@ class AgreementCollector(object):
                 # continue
                 deps = {0: ''}  # Defining 'deps' so program leaves all sentences in
 
+            random.seed(self.random_seed)
             verb_index = random.choice(deps.keys())
             verb_dep = deps[verb_index]
 
@@ -666,6 +671,9 @@ class AgreementCollector(object):
             if self.print_txt:
                 textfile_orig.write(sent_dict["original_sent"].lower() + "\n")
                 textfile.write(sent_dict["sent_words"] + "\n")
+                
+            if self.mode == "control":
+                control_file.write(sent_dict["sent_words"] + "\n")
 
             df.loc[i] = sent_dict["sent_words"]
             
@@ -687,16 +695,18 @@ class AgreementCollector(object):
                 batches += 1
 
         # save DataFrame to feather file
-        df.to_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(random_seed) + ".ftr")
-
-        # open saved feather file, save its contents as .json (workaround to be able to open it in Python 3 later)
-        df = pd.read_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(random_seed) + ".ftr")
-        json_string = df.to_json(compression="gzip")
-        with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(random_seed) + ".json.gz", "w") as fp:
-            fp.write(json_string)
+        if self.mode == "control":
+            control_file.close()
+        else:
+            df.to_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
+            # open saved feather file, save its contents as .json (workaround to be able to open it in Python 3 later)
+            df = pd.read_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
+            json_string = df.to_json(compression="gzip")
+            with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".json.gz", "w") as fp:
+                fp.write(json_string)
 
         if self.print_txt:
             textfile_orig.close()
             textfile.close()
 
-        print "Done. Dataset saved in '/data/{}/rnn_typology/".format(getuser())+"'"
+        print "Done."

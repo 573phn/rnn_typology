@@ -29,14 +29,26 @@ if [[ "$1" =~ ^(sov|svo|ovs|osv|vso|vos|random|vso60rest8|vso30rest14|vos60rest8
     && [[ "$2" =~ ^(na-d|na-s|na-a)$ ]] \
     && [[ "$3" =~ ^(0|1)$ ]] \
     && [[ "$4" =~ $RE ]]; then
-  python2 main.py --dataset dev \
-                  --agreement-marker "$2" \
-                  --add-cases 0 \
-                  --order "$1" \
-                  --mark-verb 0 \
-                  --lemmatize 0 \
-                  --print-txt "$3" \
-                  --random-seed "$4"
+
+  if [[ "$5" == "control" ]]; then
+    python2 main.py --dataset control \
+                    --agreement-marker "$2" \
+                    --add-cases 0 \
+                    --order "$1" \
+                    --mark-verb 0 \
+                    --lemmatize 0 \
+                    --print-txt "$3" \
+                    --random-seed "$4"
+  else
+    python2 main.py --dataset dev \
+                    --agreement-marker "$2" \
+                    --add-cases 0 \
+                    --order "$1" \
+                    --mark-verb 0 \
+                    --lemmatize 0 \
+                    --print-txt "$3" \
+                    --random-seed "$4"
+  fi
 
 else
   echo "${ERROR}"

@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--print-txt', type=int, choices=[1,0], help = "if 1 prints modified sentences as textfile", required = False, default = False, dest = "print_txt")
-	parser.add_argument('--dataset', type=str, choices=["train", "dev", "test"], help = "train/dev/test", required = True, dest = "dataset")
+	parser.add_argument('--dataset', type=str, choices=["train", "dev", "test", "control"], help = "train/dev/test", required = True, dest = "dataset")
 	parser.add_argument('--agreement-marker', type=str, choices=['na-d','na-s','na-a', 'ea-d','ea-s','ea-a'], help = "agreement marker. na-d: nominative accusative, deterministic; na-s: nominative accusative,syncretistic; na-a: nominative accusative, fully ambigious; ea-d: ergative absolutive, deterministic; ea-s: ergative absolutive, syncretistic; ea-a: ergative absolutive, fully ambigious", required = True, dest = "agreement_marker")
 	parser.add_argument('--add-cases', type=int, choices=[1, 0], help = "whether or not to explicitly mark cases", required = True, dest = "add_cases")
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	parser.add_argument('--filter-obj-att', type=int, choices=[1,0], help = "whether to filter sentences with subject-verb object attractor", required = False, default = False, dest = "filter_obj_att") 
 	parser.add_argument('--filter-no-obj-att', type=int, choices=[1,0], help = "whether to filter sentences without subject-verb object attractor", required = False, default = False, dest = "filter_no_obj_att") 
 	
-	parser.add_argument('--random-seed', type=int, help="random seed to use", required=False, default=5, dest="random_seed_arg") 
+	parser.add_argument('--random-seed', type=int, help="random seed to use", required=False, default=5, dest="random_seed") 
 	
 	args = parser.parse_args()
 	
@@ -48,5 +48,5 @@ if __name__ == "__main__":
 	argument_types = None # ["NNS", "NNP"]
 	verbs = None# ["VBP", "VBZ"]
 	
-	collector = agreement_collector.AgreementCollector(mode=args.dataset, skip = 1, agreement_marker = agreement_marker, order = args.order, agreements = agreements, argument_types = argument_types, verbs = verbs, most_common = 200000, mark_verb = args.mark_verb, lemmatize_verbs = args.lemmatize, fname = "data/" + args.dataset + "-penn-ud.zip", replace_uncommon  = False, add_gender = False, filter_no_att = args.filter_no_att, filter_att = args.filter_att, filter_obj = args.filter_obj, filter_no_obj= args.filter_no_obj, filter_obj_att = args.filter_obj_att, filter_no_obj_att = args.filter_no_obj_att, print_txt = args.print_txt, random_seed_arg = args.random_seed_arg)
+	collector = agreement_collector.AgreementCollector(mode=args.dataset, skip = 1, agreement_marker = agreement_marker, order = args.order, agreements = agreements, argument_types = argument_types, verbs = verbs, most_common = 200000, mark_verb = args.mark_verb, lemmatize_verbs = args.lemmatize, fname = "data/" + args.dataset + "-penn-ud.zip", replace_uncommon  = False, add_gender = False, filter_no_att = args.filter_no_att, filter_att = args.filter_att, filter_obj = args.filter_obj, filter_no_obj= args.filter_no_obj, filter_obj_att = args.filter_obj_att, filter_no_obj_att = args.filter_no_obj_att, print_txt = args.print_txt, random_seed = args.random_seed)
 	collector.collect_agreement()
