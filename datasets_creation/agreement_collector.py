@@ -131,13 +131,13 @@ class Node(object):
         else:
             # if the node represents a verb, reorder its children to express the desired word order.
             node_to_char = lambda n: "v" if n.is_verb else "s" if (
-                    n.label == "nsubj" or n.label == "nsubjpass") else "o"
+                    n.label == "nsubj" or n.label == "nsubjpass" or n.label == "nsubj:pass") else "o"
 
             # find correct order for subject, object and verb nodes.
             children_without_so = []
             c_list = []
             for c in self.children:
-                if c.label in ["aux", "auxpass", "prt", "neg", "compound:prt", "expl", "advmod"] or (
+                if c.label in ["aux", "auxpass", "aux:pass", "prt", "neg", "compound:prt", "expl", "advmod"] or (
                         c.label == "mark" and c.word == "to"):
                     c_list.append(c)
             verb_and_auxiliaries = [self] + c_list
@@ -147,10 +147,10 @@ class Node(object):
             point_node = None
 
             for c in self.children:
-                if (c.label == "nsubj" or c.label == "nsubjpass" or c.label == "csubj") and not (
+                if (c.label == "nsubj" or c.label == "nsubjpass" or c.label == "nsubj:pass" or c.label == "csubj") and not (
                         c.pos == "WDT" or c.pos == "WP"):
                     subjs.append(c)
-                elif (c.label == "dobj" or c.label == "ccomp" or c.label == "xcomp") and not (
+                elif (c.label == "dobj" or c.label == "obj" or c.label == "ccomp" or c.label == "xcomp") and not (
                         c.pos == "WDT" or c.pos == "WP"):  # or (c.lemma == "''" or c.lemma == "``"):
                     objs.append(c)
                 elif c.word != ".":
@@ -287,7 +287,7 @@ class Node(object):
                     if self.label != "acl:relcl":
                         return dict()
                     else:
-                        if self.parent.label in ["nsubj", "nsubjpass", "dobj"]:
+                        if self.parent.label in ["nsubj", "nsubjpass", "nsubj:pass", "dobj", "obj"]:
                             continue
                         child = self.parent
                         child.label = c.label
@@ -380,7 +380,7 @@ class AgreementCollector(object):
         if node.label == "cop":
             parent = node.parent
             for c in parent.children:
-                if c.label == "nsubj" or c.label == "nsubjpass":
+                if c.label == "nsubj" or c.label == "nsubjpass" or c.label == "nsubj:pass":
                     if node.word in ["is", "are", "'s", "'re", "was", "were"]:
                         c.parent = node
                         node.children.append(c)
@@ -500,6 +500,7 @@ class AgreementCollector(object):
 
         if "nsubj" in agreements_to_collect:
             agreements_to_collect.append("nsubjpass")
+            agreements_to_collect.append("nsubj:pass")
 
         root.collect_arguemnts(agreement_dict, agreements_to_collect, self.verbs, self.argument_types)
 
@@ -560,7 +561,7 @@ class AgreementCollector(object):
 
                 num_non_argument_attractors = len(non_argument_attractors)
 
-                if argument_node.label == "nsubjpass":
+                if (argument_node.label == "nsubjpass" or argument_node.label == "nsubj:pass"):
                     label = "nsubj"
                 else:
                     label = argument_node.label
@@ -575,7 +576,7 @@ class AgreementCollector(object):
                                            "attractors_words": " ".join(attractors_words),
                                            "number_non_argument_attractors": str(num_non_argument_attractors)}
 
-        deps = {k: v for (k, v) in deps.iteritems() if "nsubj" in v or "nsubjpass" in v}
+        deps = {k: v for (k, v) in deps.iteritems() if "nsubj" in v or "nsubjpass" in v or "nsubj:pass" in v}
         words = [n.word for n in nodes_dfs]
         sent_info = (words, tree_structure, lemmas, pos_tags, depths, labels)
         return sent_info, deps
@@ -651,7 +652,7 @@ class AgreementCollector(object):
                 continue
             if self.filter_att and sent_dict["nsubj_number_attractors"] != "0":
                 continue
-            if self.filter_obj and "dobj" in sent_dict["sent_labels"]:
+            if self.filter_obj and ("dobj" in sent_dict["sent_labels"] or "obj" in sent_dict["sent_labels"]):
                 continue
             if self.filter_no_obj and sent_dict["dobj_number"] == "-":
                 continue

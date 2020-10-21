@@ -44,7 +44,7 @@ if __name__ == "__main__":
 	elif args.agreement_marker == "ea-s":
 		agreement_marker = agreement_markers.AmbigiousNominativeAccusativeMarker(add_cases = add_cases)		
 		
-	agreements =  {"nsubj": True, "dobj": True, "iobj": True}
+	agreements =  {"nsubj": True, "dobj": True, "obj": True, "iobj": True}
 	argument_types = None # ["NNS", "NNP"]
 	verbs = None# ["VBP", "VBZ"]
 	
