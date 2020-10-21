@@ -29,7 +29,7 @@ node in a specific order, finding the number of a NP node and collecting verb ar
 
 
 class Node(object):
-    def __init__(self, tok_id, word, lemma, pos, label, random_seed):
+    def __init__(self, tok_id, word, lemma, pos, label):
         self.key = tok_id
         self.tok_id = tok_id
         self.word = word
@@ -45,9 +45,7 @@ class Node(object):
         self.number = None
 
         self.root = False
-        self.depth = 0
-        
-        self.random_seed = random_seed
+        self.depth = 0 
 
     def __eq__(self, other):
         return self.key == other.key
@@ -102,22 +100,21 @@ class Node(object):
                     a list containing a nested parantheses strings representing sentence structure
                     e.g. ["(", "(", "The", "man", ")", ...]
         """
-        random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
 
         if order == "random":
             order = random.choice(["svo", "sov", "vso", "vos", "osv", "ovs"])
-            
+            #print(order)
+
         if order == "vso60rest8":
             order = np.random.choice(["vso", "svo", "sov", "vos", "osv", "ovs"], p=[0.6]+[0.4/5]*5)
+            #print(order)
         if order == "vso30rest14":
             order = np.random.choice(["vso", "svo", "sov", "vos", "osv", "ovs"], p=[0.3]+[0.7/5]*5)
 
         if order == "vos60rest8":
             order = np.random.choice(["vos", "vso", "svo", "sov", "osv", "ovs"], p=[0.6]+[0.4/5]*5)
         if order == "vos30rest14":
-            order = np.random.choice(["vos", "vso", "svo", "sov", "osv", "ovs"], p=[0.3]+[0.7/5]*5)
-            
+            order = np.random.choice(["vos", "vso", "svo", "sov", "osv", "ovs"], p=[0.3]+[0.7/5]*5)            
             
 
         if not self.is_verb or order is None:
@@ -337,6 +334,8 @@ class AgreementCollector(object):
         self.print_txt = print_txt
         
         self.random_seed = random_seed
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
 
         self._load_freq_dict()
 
@@ -369,7 +368,6 @@ class AgreementCollector(object):
         w2g = dict()
 
         for w in self.vocab:
-            random.seed(self.random_seed)
             if random.random() < 0.5:
                 w2g[w] = 0
             else:
@@ -405,14 +403,13 @@ class AgreementCollector(object):
             pos = tok[POS]
             label = tok[LABEL]
             parent = int(tok[PARENT_INDEX]) - 1
-            node = Node(tok_id, word, lemma, pos, label, self.random_seed)
+            node = Node(tok_id, word, lemma, pos, label)
 
             if self.add_gender:
                 if word in self.w2g:
                     gender = self.w2g[word]
 
                 else:
-                    random.seed(self.random_seed)
                     gender = random.choice(["0", "1"])
                     self.w2g[word] = gender
 
@@ -625,7 +622,6 @@ class AgreementCollector(object):
                 # continue
                 deps = {0: ''}  # Defining 'deps' so program leaves all sentences in
 
-            random.seed(self.random_seed)
             verb_index = random.choice(deps.keys())
             verb_dep = deps[verb_index]
 
