@@ -123,15 +123,15 @@ class NominativeAccusativeMarker(AgreementMarker):
 		#print "adding case to node ", agreement_node.word
 		
 		if agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
-				
+			#print(agreement_node.lemma)	
 			case = suffixes.nsubj_sg if agreement_node.number == "sg" else suffixes.nsubj_pl
-					
+                        #print(suffixes.get_surface('nsubj','sg',True))
+
 		elif agreement_node.label == "dobj" or agreement_node.label == "obj":
 			
 			case = suffixes.dobj_sg if agreement_node.number == "sg" else suffixes.dobj_pl
 			
 		elif agreement_node.label == "iobj":
-			
 				
 			case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
