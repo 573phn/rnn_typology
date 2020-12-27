@@ -37,7 +37,8 @@ def read(fname):
 	elif fname.endswith('gz'):
 		p = subprocess.Popen(['gunzip', '-c', fname], stdout=subprocess.PIPE)
 	else:
-		raise Exception("Dataset file should be .gz or .zip")
+                p = subprocess.Popen(['cat', fname], stdout=subprocess.PIPE)
+		#raise Exception("Dataset file should be .gz or .zip")
 
 	for line in p.stdout:
 		yield line

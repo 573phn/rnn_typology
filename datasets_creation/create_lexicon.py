@@ -36,7 +36,9 @@ if __name__ == "__main__":
         #print(sent)
         #words = " ".join([tok[WORD] for tok in sent])
         #labels = " ".join([tok[LABEL] for tok in sent])
-        
+        if i%10000 == 0:
+            print >> sys.stderr, "processed lines " + i
+            
         sent_info, deps = collector._get_deps(sent)
         words, tree_structure, lemmas, pos_tags, depths, labels = sent_info
 
