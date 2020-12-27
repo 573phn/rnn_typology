@@ -38,7 +38,7 @@ def get_surface(case, number, explicit_form, lemma, lex):
     if lemma and lex:
         if lemma in lex:
             decl_index = lex[lemma][1]  # expected value: tuple of (freq, decl)
-            print "decl: ", decl_index
+            #print "decl: ", decl_index
         else:
             print >> sys.stderr, "lemma not in lex:" + lemma + "using default declension"
     return surfaces_decl[tag][decl_index]

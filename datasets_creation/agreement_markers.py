@@ -159,9 +159,9 @@ class NominativeAccusativeMarker3Decl(AgreementMarker):
 
     def get_case(self, verb_node, agreement_node, is_transitive):
 
-        print "adding case to node:", agreement_node.word
-        print(agreement_node.lemma)  
-        print(agreement_node.number)  
+        #print "adding case to node:", agreement_node.word
+        #print(agreement_node.lemma)  
+        #print(agreement_node.number)  
 
         role = ""
         if agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
@@ -172,7 +172,7 @@ class NominativeAccusativeMarker3Decl(AgreementMarker):
             role = "iobj"
         
         case_suffix = suffixes.get_surface(role, agreement_node.number, False, agreement_node.lemma, self.lex_decl)
-        print(case_suffix)
+        #print(case_suffix)
         
         return case_suffix
         

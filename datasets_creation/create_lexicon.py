@@ -11,6 +11,7 @@ import agreement_markers
 import argparse
 from utils import *
 import agreement_collector as ac
+import sys
 
 DECLENSION_RATIOS = [0.6, 0.3, 0.1] # splits list of lemmas in 3 random chunks with these ratios
 
@@ -37,7 +38,7 @@ if __name__ == "__main__":
         #words = " ".join([tok[WORD] for tok in sent])
         #labels = " ".join([tok[LABEL] for tok in sent])
         if i%10000 == 0:
-            print >> sys.stderr, "processed lines " + i
+            print >> sys.stderr, "processed lines " + str(i)
             
         sent_info, deps = collector._get_deps(sent)
         words, tree_structure, lemmas, pos_tags, depths, labels = sent_info
@@ -45,17 +46,6 @@ if __name__ == "__main__":
         if not deps:
             # continue
             deps = {0: ''}  # Defining 'deps' so program leaves all sentences in
-
-#         sent_dict = dict()
-#         sent_dict["sent_words"] = " ".join(words)
-#         sent_dict["sent_structure"] = " ".join(tree_structure)
-#         sent_dict["sent_pos"] = " ".join(pos_tags)
-#         sent_dict["sent_lemmas"] = " ".join(lemmas)
-#         sent_dict["sent_labels"] = " ".join(labels)
-#         sent_dict["sent_depths"] = " ".join(depths)
-#         sent_dict["verb_index"] = str(verb_index)
-#         sent_dict["original_sent"] = " ".join([tok[WORD] for tok in sent])
-#         sent_dict["verbs_count"] = len([p for p in pos_tags if p.startswith("v") or p.startswith("V")])
 
         #print(" ".join(words))
         #print(" ".join(lemmas))
