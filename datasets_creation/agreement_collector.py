@@ -23,7 +23,7 @@ PARENT = -1
 PRINT = False
 
 WRITEPATH="/home/{}/EuroNMT/data/control/"
-WRITETODATAPATH=True   # turn this to False if debugging
+WRITETODATAPATH=False   # turn this to False if debugging
 
 """
 This classs represents a node in a dependency parse tree. It offers methods for traversing the subtree rooted in the

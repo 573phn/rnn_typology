@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--print-txt', type=int, choices=[1,0], help = "if 1 prints modified sentences as textfile", required = False, default = False, dest = "print_txt")
 	parser.add_argument('--dataset', type=str, choices=["train", "dev", "test", "control"], help = "train/dev/test", required = True, dest = "dataset")
-	parser.add_argument('--agreement-marker', type=str, choices=['na-d','na-s','na-a', 'ea-d','ea-s','ea-a'], help = "agreement marker. na-d: nominative accusative, deterministic; na-s: nominative accusative,syncretistic; na-a: nominative accusative, fully ambigious; ea-d: ergative absolutive, deterministic; ea-s: ergative absolutive, syncretistic; ea-a: ergative absolutive, fully ambigious", required = True, dest = "agreement_marker")
+	parser.add_argument('--agreement-marker', type=str, choices=['na-d','na-d-3dec','na-s','na-a', 'ea-d','ea-s','ea-a'], help = "agreement marker. na-d: nominative accusative, deterministic; na-s: nominative accusative,syncretistic; na-a: nominative accusative, fully ambigious; ea-d: ergative absolutive, deterministic; ea-s: ergative absolutive, syncretistic; ea-a: ergative absolutive, fully ambigious", required = True, dest = "agreement_marker")
 	parser.add_argument('--add-cases', type=int, choices=[1, 0], help = "whether or not to explicitly mark cases", required = True, dest = "add_cases")
 
 	parser.add_argument('--order', type=str, choices=["sov", "svo", "ovs", "osv", "vso", "vos", "random", "vso60rest8", "vso30rest14", "vos60rest8", "vos30rest14"], help = "word order", required = True)
@@ -35,6 +35,8 @@ if __name__ == "__main__":
 	
 	if args.agreement_marker == "na-d":           
 		agreement_marker = agreement_markers.NominativeAccusativeMarker(add_cases = add_cases)
+	elif args.agreement_marker == "na-d-3dec":
+		agreement_marker = agreement_markers.NominativeAccusativeMarker3Decl(add_cases = add_cases)
 	elif args.agreement_marker == "na-s":
 		agreement_marker = agreement_markers.AmbigiousNominativeAccusativeMarker(add_cases = add_cases)
 	elif args.agreement_marker == "na-a" or args.agreement_marker == "ea-a":

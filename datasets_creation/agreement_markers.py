@@ -109,18 +109,19 @@ class AgreementMarker(object):
     def get_name(self):
             return self.name
     
-    # load lexicon of lemmas with frequency and declension
-#     def _load_freq_decl_dict(self):
-#         vocab = {}
-# 
-#         with open("lex_declensions.txt", "r") as f:
-#             lines = f.readlines()
-# 
-#         for i, line in enumerate(lines):
-#             word, freq, decl = line.strip().split("   ")
-#             vocab[word] = (freq, decl)
-# 
-#         return vocab  
+    #load lexicon of lemmas with frequency and declension
+    def _load_freq_decl_dict(self):
+        vocab = {}
+
+        with open("lex_declensions.txt", "r") as f:
+            lines = f.readlines()
+
+        assert(lines[0].strip() == "__LEMMA__	__FREQ__	__DECL__")
+        for i, line in enumerate(lines[1:]):
+            word, freq, decl = line.strip().split("\t")
+            vocab[word] = (int(freq), int(decl))
+
+        return vocab  
                 
         
 class NominativeAccusativeMarker(AgreementMarker):
@@ -133,11 +134,9 @@ class NominativeAccusativeMarker(AgreementMarker):
     def get_case(self, verb_node, agreement_node, is_transitive):
 
         #print "adding case to node ", agreement_node.word
-        
         if agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
-            #print(agreement_node.lemma)    
+
             case = suffixes.nsubj_sg if agreement_node.number == "sg" else suffixes.nsubj_pl
-            #print(suffixes.get_surface('nsubj','sg',True))
 
         elif agreement_node.label == "dobj" or agreement_node.label == "obj":
             
@@ -150,12 +149,33 @@ class NominativeAccusativeMarker(AgreementMarker):
         return case
 
 
-# class NominativeAccusativeMarker3Decl(NominativeAccusativeMarker):
-#    
-#   self.lex_decl = self._load_freq_decl_dict()
-#   print(len(self.lex_decl.keys()))
+class NominativeAccusativeMarker3Decl(AgreementMarker):
+    def __init__(self, add_cases = False, verb_agr_subj_only = False):
+        super(NominativeAccusativeMarker3Decl, self).__init__(add_cases,verb_agr_subj_only)
+        if self.add_cases:
+            self.name = "na-d-3dec"
+            self.lex_decl = self._load_freq_decl_dict()
+            print(len(self.lex_decl.keys()))
 
+    def get_case(self, verb_node, agreement_node, is_transitive):
 
+        print "adding case to node:", agreement_node.word
+        print(agreement_node.lemma)  
+        print(agreement_node.number)  
+
+        role = ""
+        if agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
+            role = "nsubj"
+        elif agreement_node.label == "dobj" or agreement_node.label == "obj":
+            role = "dobj"
+        elif agreement_node.label == "iobj":
+            role = "iobj"
+        
+        case_suffix = suffixes.get_surface(role, agreement_node.number, False, agreement_node.lemma, self.lex_decl)
+        print(case_suffix)
+        
+        return case_suffix
+        
 class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 
     def __init__(self, add_cases = False, verb_agr_subj_only = False):

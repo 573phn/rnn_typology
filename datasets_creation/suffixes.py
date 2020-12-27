@@ -1,3 +1,5 @@
+import sys
+
 #explicit = False
 explicit = True 
 
@@ -28,12 +30,17 @@ suffixes = [nsubj_sg, nsubj_pl, dobj_sg, dobj_pl, iobj_sg, iobj_pl]
 
 def get_surface(case, number, explicit_form, lemma, lex):
     tag = case + "_" + number
-    decl_index = 0 if explicit_form else 1
+    decl_index = None
+    if explicit_form:
+        decl_index = 0  
+    else:
+        decl_index = 1    # DEFAULT to 1st declension (if lemma not in lexicon) 
     if lemma and lex:
         if lemma in lex:
-            decl_index = lex[lemma]['decl']
+            decl_index = lex[lemma][1]  # expected value: tuple of (freq, decl)
+            print "decl: ", decl_index
         else:
-            print >> sys.stderr, "lemma not in lex:" + lemma
+            print >> sys.stderr, "lemma not in lex:" + lemma + "using default declension"
     return surfaces_decl[tag][decl_index]
 
 
