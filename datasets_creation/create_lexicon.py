@@ -85,7 +85,7 @@ if __name__ == "__main__":
     for i in range(n_lemmas):
         if i>thresholds[d]:
             d += 1        
-        lem_decl[lemmas[i]] = d
+        lem_decl[lemmas[i]] = d+1
 
     ### sort by frequency and print
     sorted_by_freq = sorted(lem_freq.items(), key=_arg2, reverse=True)

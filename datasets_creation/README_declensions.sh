@@ -10,6 +10,7 @@
 
 # create lexicon from Europarl training data:
 python2 create_lexicon.py --corpus_ud data/XXXX --lexfile data/eparl.3decl
+ln -s data/eparl.3decl lex_declensions.txt
 
 # to create synthetic English variant with declensions:
 # run main.py with --agreement-marker na-d-3decl

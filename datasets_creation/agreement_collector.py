@@ -22,6 +22,9 @@ LABEL = -3
 PARENT = -1
 PRINT = False
 
+WRITEPATH="/home/{}/EuroNMT/data/control/"
+WRITETODATAPATH=True   # turn this to False if debugging
+
 """
 This classs represents a node in a dependency parse tree. It offers methods for traversing the subtree rooted in the
 node in a specific order, finding the number of a NP node and collecting verb arguments.
@@ -338,7 +341,7 @@ class AgreementCollector(object):
         np.random.seed(self.random_seed)
 
         self._load_freq_dict()
-
+            
         if self.add_gender:
             self.w2g = dict()
         # self._add_gender()
@@ -363,7 +366,7 @@ class AgreementCollector(object):
                 break
 
         self.vocab = vocab
-
+        
     def _add_gender(self):
         w2g = dict()
 
@@ -600,8 +603,8 @@ class AgreementCollector(object):
             textfile_orig = open(textfilename_orig, "w")
             textfile = open(textfilename, "w")
         
-        if self.mode == "control":
-            control_file = open("/home/{}/EuroNMT/data/control/".format(getuser())+"en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".txt", "w+")
+        if self.mode == "control" and WRITETODATAPATH:
+            control_file = open(WRITEPATH.format(getuser())+"en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".txt", "w+")
 
         for i, sent in enumerate(tokenize(read(self.fname))):
             words = " ".join([tok[WORD] for tok in sent])
@@ -669,7 +672,7 @@ class AgreementCollector(object):
                 textfile_orig.write(sent_dict["original_sent"].lower() + "\n")
                 textfile.write(sent_dict["sent_words"] + "\n")
                 
-            if self.mode == "control":
+            if self.mode == "control" and WRITETODATAPATH:
                 control_file.write(sent_dict["sent_words"] + "\n")
 
             df.loc[i] = sent_dict["sent_words"]
@@ -678,7 +681,7 @@ class AgreementCollector(object):
             sents.append(sent_dict)
             sents_counter += 1
 
-            if i % 1 == 0:
+            if i % 1 == 0 and WRITETODATAPATH:
                 if batches == 0:
                     to_write = [sorted(sents[0].keys())]
                     fname = "deps_" + self.order + ".csv"
@@ -691,16 +694,17 @@ class AgreementCollector(object):
 
                 batches += 1
 
-        # save DataFrame to feather file
-        if self.mode == "control":
-            control_file.close()
-        else:
-            df.to_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
-            # open saved feather file, save its contents as .json (workaround to be able to open it in Python 3 later)
-            df = pd.read_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
-            json_string = df.to_json(compression="gzip")
-            with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".json.gz", "w") as fp:
-                fp.write(json_string)
+        if WRITETODATAPATH:
+            # save DataFrame to feather file
+            if self.mode == "control":
+                control_file.close()
+            else:
+                df.to_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
+                # open saved feather file, save its contents as .json (workaround to be able to open it in Python 3 later)
+                df = pd.read_feather("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".ftr")
+                json_string = df.to_json(compression="gzip")
+                with open("/data/{}/rnn_typology/".format(getuser())+"/en_" + self.order + self.agreement_marker.get_name() + "seed" + str(self.random_seed) + ".json.gz", "w") as fp:
+                    fp.write(json_string)
 
         if self.print_txt:
             textfile_orig.close()

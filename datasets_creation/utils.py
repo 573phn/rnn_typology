@@ -32,7 +32,13 @@ def get_all_ngrams(words, n=5):
 	
 	
 def read(fname):
-	p = subprocess.Popen(['gunzip', '-c', fname], stdout=subprocess.PIPE)
+	if fname.endswith('zip'):
+		p = subprocess.Popen(['unzip', '-c', fname], stdout=subprocess.PIPE)
+	elif fname.endswith('gz'):
+		p = subprocess.Popen(['gunzip', '-c', fname], stdout=subprocess.PIPE)
+	else:
+		raise Exception("Dataset file should be .gz or .zip")
+
 	for line in p.stdout:
 		yield line
 	p.wait()
@@ -46,7 +52,8 @@ def tokenize(fh):
 			if sent:
 				yield sent
 			sent = []
-		else:
+		#else:
+		elif line[0].isdigit():
 			sent.append(line)
 	yield sent
 
