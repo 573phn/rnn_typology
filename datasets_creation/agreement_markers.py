@@ -45,6 +45,7 @@ class AgreementMarker(object):
         self.add_cases = add_cases
         self.verb_agr_subj_only = verb_agr_subj_only
         self.name = "none"
+        self.use_surface = False
         
     def mark(self, verb_node, agreement_nodes, add_gender = False, mark_auxiliary = True):
     
@@ -54,21 +55,25 @@ class AgreementMarker(object):
         
         for agreement_node in agreement_nodes:
         
-            case = self.get_case(verb_node, agreement_node, is_transitive)
+            suff_impl, suff_surf = self.get_case(verb_node, agreement_node, is_transitive)
             gender = "" if not add_gender else agreement_node.gender
             
             if (not self.verb_agr_subj_only) or \
                 agreement_node.label == "nsubj" or \
                 agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
-                    verb_suffix.append((case, gender))
+                    verb_suffix.append((suff_impl, suff_surf, gender))
 
-            if self.add_cases:              
-                cases.append((agreement_node, case))
+            if self.add_cases: 
+                if self.use_surface:
+                    cases.append((agreement_node, suff_surf))
+                else:
+                    cases.append((agreement_node, suff_impl))
+                    
 
         #print ("D0:", verb_suffix)
         verb_suffix = list(dict.fromkeys(verb_suffix))
         #print ("D1:", verb_suffix)
-        verb_suffix = sorted(verb_suffix, key = lambda (case, gender): case)
+        verb_suffix = sorted(verb_suffix, key = lambda (suff_impl, suff_surf, gender): suff_impl)
         #print ("D2:", verb_suffix)
         # HACKY: in case of 2 suffixes with same case but different number, only keep the first one (.pl)
         # (the problem of many suffixes seem to happen because of incorrect automatic parses with multiple subjects)
@@ -80,9 +85,11 @@ class AgreementMarker(object):
             if prev_case != s_case:
                 newlist.append(s)
             prev_case = s_case
-        verb_suffix = newlist
-        #print ("D3:", verb_suffix)
-        verb_suffix = "".join([case + gender for (case, gender) in verb_suffix])
+        #print ("D3:", newlist)
+        if self.use_surface:
+            verb_suffix = "".join([suff_surf + gender for (suff_impl, suff_surf, gender) in newlist])        
+        else:
+            verb_suffix = "".join([suff_impl + gender for (suff_impl, suff_surf, gender) in newlist])
         #print()
         
         found = False
@@ -146,16 +153,44 @@ class NominativeAccusativeMarker(AgreementMarker):
                 
             case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
-        return case
+        return (case, case)
 
 
-class NominativeAccusativeMarker3Decl(AgreementMarker):
+class NominativeAccusativeMarkerFusional(AgreementMarker):
     def __init__(self, add_cases = False, verb_agr_subj_only = False):
-        super(NominativeAccusativeMarker3Decl, self).__init__(add_cases,verb_agr_subj_only)
+        super(NominativeAccusativeMarkerFusional, self).__init__(add_cases,verb_agr_subj_only)
         if self.add_cases:
-            self.name = "na-d-3dec"
+            self.name = "na-d-f"
+            self.use_surface = True
+        
+    def get_case(self, verb_node, agreement_node, is_transitive):
+
+        #print "adding case to node:", agreement_node.word
+        #print(agreement_node.lemma)  
+        #print(agreement_node.number)  
+
+        role = ""
+        if agreement_node.label == "nsubj" or agreement_node.label == "nsubjpass" or agreement_node.label == "nsubj:pass":
+            role = "nsubj"
+        elif agreement_node.label == "dobj" or agreement_node.label == "obj":
+            role = "dobj"
+        elif agreement_node.label == "iobj":
+            role = "iobj"
+        
+        suff_impl, suff_surf = suffixes.get_surface(role, agreement_node.number, explicit_form=False)
+        #print(">>", suffix_impl_surf)
+        
+        return (suff_impl, suff_surf)
+        
+        
+class NominativeAccusativeMarkerFusional3Decl(AgreementMarker):
+    def __init__(self, add_cases = False, verb_agr_subj_only = False):
+        super(NominativeAccusativeMarkerFusional3Decl, self).__init__(add_cases,verb_agr_subj_only)
+        if self.add_cases:
+            self.name = "na-d-f3"
             self.lex_decl = self._load_freq_decl_dict()
-            print(len(self.lex_decl.keys()))
+            print "loaded declension lexicon, n_entries=", len(self.lex_decl.keys())
+            self.use_surface = True
 
     def get_case(self, verb_node, agreement_node, is_transitive):
 
@@ -171,10 +206,10 @@ class NominativeAccusativeMarker3Decl(AgreementMarker):
         elif agreement_node.label == "iobj":
             role = "iobj"
         
-        case_suffix = suffixes.get_surface(role, agreement_node.number, False, agreement_node.lemma, self.lex_decl)
-        #print(case_suffix)
+        suff_impl, suff_surf = suffixes.get_surface(role, agreement_node.number, explicit_form=False, lemma=agreement_node.lemma, lex=self.lex_decl)
+        #print(suffix_impl_surf)
         
-        return case_suffix
+        return (suff_impl, suff_surf)
         
 class AmbigiousNominativeAccusativeMarker(AgreementMarker):
 
@@ -199,7 +234,7 @@ class AmbigiousNominativeAccusativeMarker(AgreementMarker):
                             
             case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
 
-        return case
+        return (case, case)
         
 class ErgativeAbsolutiveMarker(AgreementMarker):
 
@@ -224,7 +259,7 @@ class ErgativeAbsolutiveMarker(AgreementMarker):
             
             case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
         
-        return case
+        return (case, case)
         
 class AmbigiousErgativeAbsolutiveMarker(AgreementMarker):
 
@@ -249,7 +284,7 @@ class AmbigiousErgativeAbsolutiveMarker(AgreementMarker):
                 
             case = suffixes.iobj_sg if agreement_node.number == "sg" else suffixes.iobj_pl
         
-        return case
+        return (case, case)
 
 class ArgumentPresenceMarker(AgreementMarker):
 
@@ -262,5 +297,5 @@ class ArgumentPresenceMarker(AgreementMarker):
 
         case = suffixes.arg_sg if agreement_node.number == "sg" else suffixes.arg_pl
         
-        return case
+        return (case, case)
 

@@ -16,6 +16,10 @@ EPARL=data/eparl_train.conll
 python2 create_lexicon.py --corpus_ud $EPARL --lexfile data/eparl.3decl
 ln -s data/eparl.3decl lex_declensions.txt
 
-# to create synthetic English variant with declensions:
-# run main.py with --agreement-marker na-d-3dec
+# to create synthetic English variant with fusional (surface) suffixes:
+# python2 main.py --dataset dev  --agreement-marker  "na-d-f" --add-cases 1 --order "svo" --mark-verb 1 --lemmatize 1 --print-txt 1 --random-seed 5
+
+# to create synthetic English variant with fusional (surface) suffixes and 3 declensions: 
+# python2 main.py --dataset dev  --agreement-marker  "na-d-f3" --add-cases 1 --order "svo" --mark-verb 1 --lemmatize 1 --print-txt 1 --random-seed 5
+
 

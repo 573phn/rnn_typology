@@ -1,6 +1,4 @@
 import sys
-
-#explicit = False
 explicit = True 
 
 nsubj_sg = "kar" if not explicit else ".nsubj.sg"
@@ -28,7 +26,7 @@ surfaces_decl = {
 
 suffixes = [nsubj_sg, nsubj_pl, dobj_sg, dobj_pl, iobj_sg, iobj_pl]
 
-def get_surface(case, number, explicit_form, lemma, lex):
+def get_surface(case, number, explicit_form=True, lemma=None, lex=None):
     tag = case + "_" + number
     decl_index = None
     if explicit_form:
@@ -39,9 +37,12 @@ def get_surface(case, number, explicit_form, lemma, lex):
         if lemma in lex:
             decl_index = lex[lemma][1]  # expected value: tuple of (freq, decl)
             #print "decl: ", decl_index
-        else:
-            print >> sys.stderr, "lemma not in lex:" + lemma + "using default declension"
-    return surfaces_decl[tag][decl_index]
+        #else:
+        #    print >> sys.stderr, "lemma not in lex: [" + lemma + "] using default declension"
+           
+    # always return a pair of (implicit, surface) form 
+    # [note] these will be identical if explicit_form==True 
+    return (surfaces_decl[tag][0], surfaces_decl[tag][decl_index])
 
 
 def is_nsubj(suffix):
@@ -53,10 +54,6 @@ def is_dobj(suffix):
 def is_iobj(suffix):
     return suffix == iobj_sg or suffix== iobj_pl
 
-def load_lex(fname):
-    for line in read(fname):
-        print(line)
-        # TODO!
 
 
     
